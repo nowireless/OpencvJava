@@ -12,13 +12,15 @@ public class OpencvJava {
 
 	public static boolean load() {
 		if(!LOADED) {
-			InputStream in = OpencvJava.class.getResourceAsStream("/org/opencv/native/win64/opencv_java310.dll");
+			String os = System.getProperty("os.arch");
+			InputStream in = OpencvJava.class.getResourceAsStream("/org/opencv/native/"+os+"/opencv_java310.dll");
 			
 			try {
-				File jniLib = File.createTempFile("opnecv_java310", ".dll");
+				File jniLib = File.createTempFile("opencv_java310" + os, ".dll");
+				System.out.println(jniLib);
 				OutputStream out = new FileOutputStream(jniLib);
 				jniLib.deleteOnExit();
-	
+				System.out.println(in);
 				byte[] buffer = new byte[1024];
 				int readBytes;
 				try {
@@ -29,7 +31,6 @@ public class OpencvJava {
 					out.close();
 					in.close();
 				}
-	
 				System.load(jniLib.getAbsolutePath());
 				LOADED = true;
 			} catch (IOException e) {
@@ -39,5 +40,4 @@ public class OpencvJava {
 		}
 		return LOADED;
 	}
-	
 }
