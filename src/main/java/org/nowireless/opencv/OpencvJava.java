@@ -7,30 +7,37 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class OpencvJava {
+	
+	private static boolean LOADED = false;
 
-	public static void load() {
-		InputStream in = OpencvJava.class.getResourceAsStream("/org/opencv/native/win64/opencv_java310.dll");
-		
-		try {
-			File jniLib = File.createTempFile("opnecv_java310", ".dll");
-			OutputStream out = new FileOutputStream(jniLib);
-			jniLib.deleteOnExit();
-
-			byte[] buffer = new byte[1024];
-			int readBytes;
+	public static boolean load() {
+		if(!LOADED) {
+			InputStream in = OpencvJava.class.getResourceAsStream("/org/opencv/native/win64/opencv_java310.dll");
+			
 			try {
-				while ((readBytes = in.read(buffer)) != -1) {
-					out.write(buffer, 0, readBytes);
+				File jniLib = File.createTempFile("opnecv_java310", ".dll");
+				OutputStream out = new FileOutputStream(jniLib);
+				jniLib.deleteOnExit();
+	
+				byte[] buffer = new byte[1024];
+				int readBytes;
+				try {
+					while ((readBytes = in.read(buffer)) != -1) {
+						out.write(buffer, 0, readBytes);
+					}
+				} finally {
+					out.close();
+					in.close();
 				}
-			} finally {
-				out.close();
-				in.close();
+	
+				System.load(jniLib.getAbsolutePath());
+				LOADED = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				LOADED = false;
 			}
-
-			System.load(jniLib.getAbsolutePath());
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+		return LOADED;
 	}
 	
 }
